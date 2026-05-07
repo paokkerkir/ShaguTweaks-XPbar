@@ -3,6 +3,9 @@
   A [ShaguTweaks](https://github.com/shagu/ShaguTweaks) module for WoW 1.12 that replaces the default Blizzard experience bar with a clean, customizable
   alternative.
 
+<img width="760" height="22" alt="image" src="https://github.com/user-attachments/assets/c7422ec4-13dc-4c92-aa88-add9f4d04d65" />
+
+
   ---
   # Features
 
@@ -24,7 +27,9 @@
 
   │ Ctrl + Left drag   │ Move the bar              │
 
-  │ Ctrl + Mousewheel  │ Resize width (100–700 px) │
+  │ Ctrl + Mousewheel  │ Resize width │
+
+  │ Ctrl + Shift + Mousewheel  │ Resize height │
 
   │ Ctrl + Right-click │ Open options panel        │
 
@@ -44,6 +49,10 @@
   - Rested Bar
   - Text
   - Rested Text
+
+  Font Size
+
+  Enable/Disable Tooltip
 
   All settings and position are saved between sessions via ShaguTweaksXPbar SavedVariables.
 
