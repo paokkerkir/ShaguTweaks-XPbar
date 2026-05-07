@@ -10,7 +10,7 @@
   # Features
 
   - XP fill shown in blue; rested XP shown as a separate purple segment extending from your current progress to the
-  rested cap
+  rested cap. All colors are customizable.
   - Bar text displays current / max - X% - Y% rested - the rested portion is hidden entirely when you have no rested XP
   - Text can be set to always visible, hover-only, or flash for 5 seconds on XP gain
   - Tooltip on hover always shows full XP and rested breakdown regardless of text settings
@@ -53,6 +53,8 @@
   Font Size
 
   Enable/Disable Tooltip
+
+  Enable/Disable segments on bar
 
   All settings and position are saved between sessions via ShaguTweaksXPbar SavedVariables.
 
