@@ -21,7 +21,9 @@ module.enable = function(self)
     width = 400, height = 12,
     showText  = false,
     hoverText = true,
-    gainText  = true,
+    gainText    = true,
+    showTooltip = true,
+    fontSize  = 10,
     xpColor         = { 0.2, 0.5, 0.9 },
     restedColor     = { 0.7, 0.2, 0.9 },
     textColor       = { 1.0, 1.0, 1.0 },
@@ -59,7 +61,7 @@ module.enable = function(self)
   bar:EnableMouse(true)
   bar:SetMovable(true)
   bar:RegisterForDrag("LeftButton")
-  bar:SetFrameStrata("LOW")
+  bar:SetFrameStrata("HIGH")
   bar:SetClampedToScreen(true)
 
   bar.bg = bar:CreateTexture(nil, "BACKGROUND")
@@ -76,7 +78,7 @@ module.enable = function(self)
 
   bar.text = bar:CreateFontString(nil, "OVERLAY")
   bar.text:SetPoint("CENTER", bar, "CENTER", 0, 0)
-  bar.text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE")
+  bar.text:SetFont("Fonts\\FRIZQT__.TTF", cfg.fontSize, "OUTLINE")
   bar.text:Hide()
 
   -- apply saved colors
@@ -175,8 +177,6 @@ module.enable = function(self)
     local y = this:GetBottom() - UIParent:GetBottom()
     cfg.x = math.floor(x + 0.5)
     cfg.y = math.floor(y + 0.5)
-    this:ClearAllPoints()
-    this:SetPoint("BOTTOM", UIParent, "BOTTOM", cfg.x, cfg.y)
   end)
 
   -- ============================================================
@@ -185,7 +185,11 @@ module.enable = function(self)
 
   bar:EnableMouseWheel(true)
   bar:SetScript("OnMouseWheel", function()
-    if IsControlKeyDown() then
+    if IsControlKeyDown() and IsShiftKeyDown() then
+      cfg.height = math.max(2, math.min(60, cfg.height + arg1))
+      bar:SetHeight(cfg.height)
+      UpdateBar()
+    elseif IsControlKeyDown() then
       cfg.width = math.max(100, math.min(700, cfg.width + arg1 * 10))
       bar:SetWidth(cfg.width)
       UpdateBar()
@@ -203,17 +207,19 @@ module.enable = function(self)
     local restXP = GetXPExhaustion() or 0
     local pct    = math.floor((currXP / maxXP) * 100)
 
-    GameTooltip:ClearLines()
-    GameTooltip:SetOwner(this, "ANCHOR_TOP")
-    GameTooltip:AddLine("Experience", 1, 0.82, 0)
-    GameTooltip:AddDoubleLine("Progress:", currXP .. " / " .. maxXP .. " (" .. pct .. "%)", 1,1,1, 1,1,1)
-    if restXP > 0 then
-      local restPct = math.floor((restXP / maxXP) * 100)
-      GameTooltip:AddDoubleLine("Rested:", restPct .. "% (" .. restXP .. " XP)", 0.5,0.8,1, 0.5,0.8,1)
-    else
-      GameTooltip:AddDoubleLine("Rested:", "None", 1,1,1, 0.6,0.6,0.6)
+    if cfg.showTooltip then
+      GameTooltip:ClearLines()
+      GameTooltip_SetDefaultAnchor(GameTooltip, this)
+      GameTooltip:AddLine("Experience", 1, 0.82, 0)
+      GameTooltip:AddDoubleLine("Progress:", currXP .. " / " .. maxXP .. " (" .. pct .. "%)", 1,1,1, 1,1,1)
+      if restXP > 0 then
+        local restPct = math.floor((restXP / maxXP) * 100)
+        GameTooltip:AddDoubleLine("Rested:", restPct .. "% (" .. restXP .. " XP)", 0.5,0.8,1, 0.5,0.8,1)
+      else
+        GameTooltip:AddDoubleLine("Rested:", "None", 1,1,1, 0.6,0.6,0.6)
+      end
+      GameTooltip:Show()
     end
-    GameTooltip:Show()
 
     if cfg.hoverText then
       textHovered = true
@@ -314,7 +320,7 @@ module.enable = function(self)
 
   configPanel = CreateFrame("Frame", "ShaguTweaksXPbarConfig", UIParent)
   configPanel:SetWidth(220)
-  configPanel:SetHeight(255)
+  configPanel:SetHeight(324)
   configPanel:SetFrameStrata("DIALOG")
   configPanel:SetBackdrop({
     bgFile   = "Interface\\Tooltips\\UI-Tooltip-Background",
@@ -339,45 +345,87 @@ module.enable = function(self)
   MakeCheckbox(configPanel, "Show text on XP gain (5s)", -76,
     function() return cfg.gainText  end,
     function(v) cfg.gainText  = v   end)
+  MakeCheckbox(configPanel, "Show tooltip on hover", -100,
+    function() return cfg.showTooltip end,
+    function(v) cfg.showTooltip = v   end)
 
   local divider = configPanel:CreateTexture(nil, "ARTWORK")
-  divider:SetPoint("TOPLEFT",  configPanel, "TOPLEFT",  10, -106)
-  divider:SetPoint("TOPRIGHT", configPanel, "TOPRIGHT", -10, -106)
+  divider:SetPoint("TOPLEFT",  configPanel, "TOPLEFT",  10, -130)
+  divider:SetPoint("TOPRIGHT", configPanel, "TOPRIGHT", -10, -130)
   divider:SetHeight(1)
   divider:SetTexture("Interface\\Buttons\\WHITE8X8")
   divider:SetVertexColor(0.4, 0.4, 0.4, 0.8)
 
   local colorHeader = configPanel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-  colorHeader:SetPoint("TOPLEFT", configPanel, "TOPLEFT", 10, -114)
+  colorHeader:SetPoint("TOPLEFT", configPanel, "TOPLEFT", 10, -138)
   colorHeader:SetText("Colors")
 
-  MakeSwatch(configPanel, "XP Bar", -132,
+  MakeSwatch(configPanel, "XP Bar", -156,
     function() return cfg.xpColor end,
     function(r, g, b)
       cfg.xpColor = {r, g, b}
       bar.fill:SetVertexColor(r, g, b, 1)
     end)
 
-  MakeSwatch(configPanel, "Rested Bar", -155,
+  MakeSwatch(configPanel, "Rested Bar", -179,
     function() return cfg.restedColor end,
     function(r, g, b)
       cfg.restedColor = {r, g, b}
       bar.rested:SetVertexColor(r, g, b, 1)
     end)
 
-  MakeSwatch(configPanel, "Text", -178,
+  MakeSwatch(configPanel, "Text", -202,
     function() return cfg.textColor end,
     function(r, g, b)
       cfg.textColor = {r, g, b}
       bar.text:SetTextColor(r, g, b)
     end)
 
-  MakeSwatch(configPanel, "Rested Text", -201,
+  MakeSwatch(configPanel, "Rested Text", -225,
     function() return cfg.restedTextColor end,
     function(r, g, b)
       cfg.restedTextColor = {r, g, b}
       UpdateBar()  -- rebuild text string with new inline color code
     end)
+
+  local divider2 = configPanel:CreateTexture(nil, "ARTWORK")
+  divider2:SetPoint("TOPLEFT",  configPanel, "TOPLEFT",  10, -246)
+  divider2:SetPoint("TOPRIGHT", configPanel, "TOPRIGHT", -10, -246)
+  divider2:SetHeight(1)
+  divider2:SetTexture("Interface\\Buttons\\WHITE8X8")
+  divider2:SetVertexColor(0.4, 0.4, 0.4, 0.8)
+
+  local fontSizeHeader = configPanel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+  fontSizeHeader:SetPoint("TOPLEFT", configPanel, "TOPLEFT", 10, -254)
+  fontSizeHeader:SetText("Font Size")
+
+  local fontSizeVal = configPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+  fontSizeVal:SetPoint("TOPLEFT", configPanel, "TOPLEFT", 110, -272)
+  fontSizeVal:SetWidth(38)
+  fontSizeVal:SetJustifyH("CENTER")
+  fontSizeVal:SetText(tostring(cfg.fontSize))
+
+  local fontSizeMinus = CreateFrame("Button", "ShaguTweaksXPbarFontMinus", configPanel, "GameMenuButtonTemplate")
+  fontSizeMinus:SetWidth(30)
+  fontSizeMinus:SetHeight(20)
+  fontSizeMinus:SetPoint("TOPLEFT", configPanel, "TOPLEFT", 80, -272)
+  fontSizeMinus:SetText("-")
+  fontSizeMinus:SetScript("OnClick", function()
+    cfg.fontSize = math.max(6, cfg.fontSize - 1)
+    bar.text:SetFont("Fonts\\FRIZQT__.TTF", cfg.fontSize, "OUTLINE")
+    fontSizeVal:SetText(tostring(cfg.fontSize))
+  end)
+
+  local fontSizePlus = CreateFrame("Button", "ShaguTweaksXPbarFontPlus", configPanel, "GameMenuButtonTemplate")
+  fontSizePlus:SetWidth(30)
+  fontSizePlus:SetHeight(20)
+  fontSizePlus:SetPoint("TOPLEFT", configPanel, "TOPLEFT", 148, -272)
+  fontSizePlus:SetText("+")
+  fontSizePlus:SetScript("OnClick", function()
+    cfg.fontSize = math.min(24, cfg.fontSize + 1)
+    bar.text:SetFont("Fonts\\FRIZQT__.TTF", cfg.fontSize, "OUTLINE")
+    fontSizeVal:SetText(tostring(cfg.fontSize))
+  end)
 
   local closeBtn = CreateFrame("Button", nil, configPanel, "GameMenuButtonTemplate")
   closeBtn:SetWidth(80)
