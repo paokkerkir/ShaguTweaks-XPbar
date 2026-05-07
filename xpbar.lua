@@ -28,6 +28,7 @@ module.enable = function(self)
     restedColor     = { 0.7, 0.2, 0.9 },
     textColor       = { 1.0, 1.0, 1.0 },
     restedTextColor = { 0.5, 0.8, 1.0 },
+    showDividers    = false,
   }
   for k, v in pairs(defaults) do
     if ShaguTweaksXPbar[k] == nil then ShaguTweaksXPbar[k] = v end
@@ -81,6 +82,16 @@ module.enable = function(self)
   bar.text:SetFont("Fonts\\FRIZQT__.TTF", cfg.fontSize, "OUTLINE")
   bar.text:Hide()
 
+  bar.dividers = {}
+  for i = 1, 9 do
+    local d = bar:CreateTexture(nil, "OVERLAY")
+    d:SetTexture("Interface\\Buttons\\WHITE8X8")
+    d:SetVertexColor(0, 0, 0, 0.5)
+    d:SetWidth(1)
+    d:Hide()
+    bar.dividers[i] = d
+  end
+
   -- apply saved colors
   bar.fill:SetVertexColor(cfg.xpColor[1], cfg.xpColor[2], cfg.xpColor[3], 1)
   bar.rested:SetVertexColor(cfg.restedColor[1], cfg.restedColor[2], cfg.restedColor[3], 1)
@@ -92,6 +103,21 @@ module.enable = function(self)
 
   local textHovered = false
   local textGain    = false
+
+  local function RefreshDividers()
+    local w = bar:GetWidth()
+    local h = bar:GetHeight()
+    for i = 1, 9 do
+      if cfg.showDividers then
+        bar.dividers[i]:ClearAllPoints()
+        bar.dividers[i]:SetPoint("TOPLEFT", bar, "TOPLEFT", w * i / 10, 0)
+        bar.dividers[i]:SetHeight(h)
+        bar.dividers[i]:Show()
+      else
+        bar.dividers[i]:Hide()
+      end
+    end
+  end
 
   local function RefreshText()
     if cfg.showText or textHovered or textGain then
@@ -161,6 +187,7 @@ module.enable = function(self)
     bar.text:SetText(text)
     bar.text:SetTextColor(cfg.textColor[1], cfg.textColor[2], cfg.textColor[3])
     RefreshText()
+    RefreshDividers()
   end
 
   -- ============================================================
@@ -320,7 +347,7 @@ module.enable = function(self)
 
   configPanel = CreateFrame("Frame", "ShaguTweaksXPbarConfig", UIParent)
   configPanel:SetWidth(220)
-  configPanel:SetHeight(324)
+  configPanel:SetHeight(348)
   configPanel:SetFrameStrata("DIALOG")
   configPanel:SetBackdrop({
     bgFile   = "Interface\\Tooltips\\UI-Tooltip-Background",
@@ -348,40 +375,43 @@ module.enable = function(self)
   MakeCheckbox(configPanel, "Show tooltip on hover", -100,
     function() return cfg.showTooltip end,
     function(v) cfg.showTooltip = v   end)
+  MakeCheckbox(configPanel, "Show dividers", -124,
+    function() return cfg.showDividers end,
+    function(v) cfg.showDividers = v; RefreshDividers() end)
 
   local divider = configPanel:CreateTexture(nil, "ARTWORK")
-  divider:SetPoint("TOPLEFT",  configPanel, "TOPLEFT",  10, -130)
-  divider:SetPoint("TOPRIGHT", configPanel, "TOPRIGHT", -10, -130)
+  divider:SetPoint("TOPLEFT",  configPanel, "TOPLEFT",  10, -154)
+  divider:SetPoint("TOPRIGHT", configPanel, "TOPRIGHT", -10, -154)
   divider:SetHeight(1)
   divider:SetTexture("Interface\\Buttons\\WHITE8X8")
   divider:SetVertexColor(0.4, 0.4, 0.4, 0.8)
 
   local colorHeader = configPanel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-  colorHeader:SetPoint("TOPLEFT", configPanel, "TOPLEFT", 10, -138)
+  colorHeader:SetPoint("TOPLEFT", configPanel, "TOPLEFT", 10, -162)
   colorHeader:SetText("Colors")
 
-  MakeSwatch(configPanel, "XP Bar", -156,
+  MakeSwatch(configPanel, "XP Bar", -180,
     function() return cfg.xpColor end,
     function(r, g, b)
       cfg.xpColor = {r, g, b}
       bar.fill:SetVertexColor(r, g, b, 1)
     end)
 
-  MakeSwatch(configPanel, "Rested Bar", -179,
+  MakeSwatch(configPanel, "Rested Bar", -203,
     function() return cfg.restedColor end,
     function(r, g, b)
       cfg.restedColor = {r, g, b}
       bar.rested:SetVertexColor(r, g, b, 1)
     end)
 
-  MakeSwatch(configPanel, "Text", -202,
+  MakeSwatch(configPanel, "Text", -226,
     function() return cfg.textColor end,
     function(r, g, b)
       cfg.textColor = {r, g, b}
       bar.text:SetTextColor(r, g, b)
     end)
 
-  MakeSwatch(configPanel, "Rested Text", -225,
+  MakeSwatch(configPanel, "Rested Text", -249,
     function() return cfg.restedTextColor end,
     function(r, g, b)
       cfg.restedTextColor = {r, g, b}
@@ -389,18 +419,18 @@ module.enable = function(self)
     end)
 
   local divider2 = configPanel:CreateTexture(nil, "ARTWORK")
-  divider2:SetPoint("TOPLEFT",  configPanel, "TOPLEFT",  10, -246)
-  divider2:SetPoint("TOPRIGHT", configPanel, "TOPRIGHT", -10, -246)
+  divider2:SetPoint("TOPLEFT",  configPanel, "TOPLEFT",  10, -270)
+  divider2:SetPoint("TOPRIGHT", configPanel, "TOPRIGHT", -10, -270)
   divider2:SetHeight(1)
   divider2:SetTexture("Interface\\Buttons\\WHITE8X8")
   divider2:SetVertexColor(0.4, 0.4, 0.4, 0.8)
 
   local fontSizeHeader = configPanel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-  fontSizeHeader:SetPoint("TOPLEFT", configPanel, "TOPLEFT", 10, -254)
+  fontSizeHeader:SetPoint("TOPLEFT", configPanel, "TOPLEFT", 10, -278)
   fontSizeHeader:SetText("Font Size")
 
   local fontSizeVal = configPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-  fontSizeVal:SetPoint("TOPLEFT", configPanel, "TOPLEFT", 110, -272)
+  fontSizeVal:SetPoint("TOPLEFT", configPanel, "TOPLEFT", 110, -296)
   fontSizeVal:SetWidth(38)
   fontSizeVal:SetJustifyH("CENTER")
   fontSizeVal:SetText(tostring(cfg.fontSize))
@@ -408,7 +438,7 @@ module.enable = function(self)
   local fontSizeMinus = CreateFrame("Button", "ShaguTweaksXPbarFontMinus", configPanel, "GameMenuButtonTemplate")
   fontSizeMinus:SetWidth(30)
   fontSizeMinus:SetHeight(20)
-  fontSizeMinus:SetPoint("TOPLEFT", configPanel, "TOPLEFT", 80, -272)
+  fontSizeMinus:SetPoint("TOPLEFT", configPanel, "TOPLEFT", 80, -296)
   fontSizeMinus:SetText("-")
   fontSizeMinus:SetScript("OnClick", function()
     cfg.fontSize = math.max(6, cfg.fontSize - 1)
@@ -419,7 +449,7 @@ module.enable = function(self)
   local fontSizePlus = CreateFrame("Button", "ShaguTweaksXPbarFontPlus", configPanel, "GameMenuButtonTemplate")
   fontSizePlus:SetWidth(30)
   fontSizePlus:SetHeight(20)
-  fontSizePlus:SetPoint("TOPLEFT", configPanel, "TOPLEFT", 148, -272)
+  fontSizePlus:SetPoint("TOPLEFT", configPanel, "TOPLEFT", 148, -296)
   fontSizePlus:SetText("+")
   fontSizePlus:SetScript("OnClick", function()
     cfg.fontSize = math.min(24, cfg.fontSize + 1)
