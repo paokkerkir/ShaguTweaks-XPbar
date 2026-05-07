@@ -14,6 +14,11 @@
   - Bar hides automatically at max level
 
   ---
+
+  # Installation
+  - Download the repo as zip, extract to Interface/AddOns, rename the folder to "ShaguTweaks-XPbar".
+
+  ---
   # Controls
 
 
