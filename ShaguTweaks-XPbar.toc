@@ -1,0 +1,9 @@
+## Interface: 11200
+## Title: |cffffcc00Shagu|cffffffffTweaks |cffcccccc[XP Bar]
+## Author: belthazor
+## Notes: A Shagutweaks module that replaces the default XP bar with a draggable, resizable bar showing rested XP.
+## Version: 1.0
+## Dependencies: ShaguTweaks
+## SavedVariables: ShaguTweaksXPbar
+
+xpbar.lua
