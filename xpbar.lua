@@ -179,7 +179,7 @@ module.enable = function(self)
     end
 
     local pct  = math.floor(fillPct * 100)
-    local text = currXP .. " / " .. maxXP .. " - " .. pct .. "%"
+    local text = currXP .. "/" .. maxXP .. " - " .. pct .. "%"
     if restXP > 0 then
       local restPct = math.floor((restXP / maxXP) * 100)
       text = text .. " - " .. ColorCode(cfg.restedTextColor) .. restPct .. "% rested|r"
